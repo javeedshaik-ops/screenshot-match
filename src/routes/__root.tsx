@@ -43,7 +43,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
       <Ambient />
       <div className="glass max-w-md rounded-3xl p-10 text-center">
         <h1 className="text-xl font-semibold">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message || "Something went wrong."}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{(error as Error)?.message || "Something went wrong."}</p>
         <div className="mt-6 flex justify-center gap-2">
           <button
             onClick={() => {

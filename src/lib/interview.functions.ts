@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { scoreInterview, type Letter } from "./scoring";
+import type { Tables } from "@/integrations/supabase/types";
 
 const LETTERS = ["A", "B", "C", "D"] as const;
 
@@ -139,16 +140,7 @@ export const createInterview = createServerFn({ method: "POST" })
 async function ownedSession(context: { supabase: any }, id: string) {
   const { data, error } = await context.supabase.from("interview_sessions").select("*").eq("id", id).maybeSingle();
   if (error || !data) throw new Error("Interview not found.");
-  return data as {
-    id: string;
-    user_id: string;
-    status: string;
-    started_at: string | null;
-    timed: boolean;
-    seconds_per_question: number | null;
-    question_count: number;
-    [k: string]: unknown;
-  };
+  return data as Tables<"interview_sessions">;
 }
 
 const idSchema = z.object({ id: z.string().uuid() });
@@ -297,7 +289,7 @@ export const submitInterview = createServerFn({ method: "POST" })
       .select("id");
     if (!upd?.length) return { id: data.id, alreadySubmitted: true };
     for (const a of ans ?? []) {
-      await db.from("user_answers").update({ is_correct: r.perQuestion[a.question_id] }).eq("id", a.id);
+      await db.from("user_answers").update({ is_correct: r.perQuestion[a.question_id] ?? null }).eq("id", a.id);
     }
     try {
       await buildFeedback(data.id, context.userId);

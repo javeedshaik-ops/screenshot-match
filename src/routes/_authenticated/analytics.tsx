@@ -41,7 +41,7 @@ function Analytics() {
   const byRole = Object.values(
     sessions.reduce<Record<string, { role: string; sum: number; n: number }>>((a, s) => {
       (a[s.role] ??= { role: s.role, sum: 0, n: 0 }).sum += Number(s.score);
-      a[s.role].n++;
+      a[s.role]!.n++;
       return a;
     }, {}),
   ).map((r) => ({ role: r.role, score: Math.round(r.sum / r.n) }));

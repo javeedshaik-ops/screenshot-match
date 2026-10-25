@@ -21,7 +21,7 @@ function History() {
       <PageHeader title="Practice history" subtitle="Every interview you've taken, newest first." action={<Link to="/interview/new" className="btn-primary">New Interview</Link>} />
       <div className="mb-4 flex gap-2">
         {[["all", "All"], ["completed", "Completed"], ["in_progress", "In progress"]].map(([v, l]) => (
-          <button key={v} onClick={() => setFilter(v)} className={`rounded-full px-4 py-1.5 text-sm ${filter === v ? "bg-brand text-primary-foreground" : "glass text-muted-foreground"}`}>{l}</button>
+          <button key={v} onClick={() => setFilter(v!)} className={`rounded-full px-4 py-1.5 text-sm ${filter === v ? "bg-brand text-primary-foreground" : "glass text-muted-foreground"}`}>{l}</button>
         ))}
       </div>
       <Panel>
