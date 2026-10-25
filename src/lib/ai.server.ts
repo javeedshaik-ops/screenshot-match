@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, Output, NoObjectGeneratedError } from "ai";
+import type { LanguageModel } from "ai";
 import type { z } from "zod";
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1";
@@ -20,7 +21,7 @@ export async function generateStructured<T>(opts: {
   instructions: string;
   prompt: string;
 }): Promise<T> {
-  const apiKey = process.env['LOVABLE_API_KEY'];
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new AiError("AI is not configured (missing LOVABLE_API_KEY).", 500);
 
   let status = 0;
@@ -37,7 +38,7 @@ export async function generateStructured<T>(opts: {
 
   try {
     const result = streamText({
-      model: provider.responses(MODEL) as any,
+      model: provider.responses(MODEL) as LanguageModel,
       instructions: opts.instructions,
       prompt: opts.prompt,
       output: Output.object({ schema: opts.schema }),
@@ -56,9 +57,13 @@ export async function generateStructured<T>(opts: {
     if (NoObjectGeneratedError.isInstance(e)) {
       throw new AiError("The AI returned an invalid response. Please try again.", 502);
     }
-    if (status === 429) throw new AiError("AI is busy right now. Please wait a moment and retry.", 429);
+    if (status === 429)
+      throw new AiError("AI is busy right now. Please wait a moment and retry.", 429);
     if (status === 402)
-      throw new AiError("AI credits are exhausted for this workspace. Add credits to continue.", 402);
+      throw new AiError(
+        "AI credits are exhausted for this workspace. Add credits to continue.",
+        402,
+      );
     if (status === 403) throw new AiError("AI access is not available for this workspace.", 403);
     console.error("AI call failed", e);
     throw new AiError("AI request failed. Please try again.", status || 500);

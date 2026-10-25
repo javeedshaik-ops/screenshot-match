@@ -23,7 +23,9 @@ describe("scoreInterview", () => {
 describe("practiceStreak", () => {
   it("counts consecutive days ending today", () => {
     const now = new Date("2026-10-25T12:00:00Z");
-    expect(practiceStreak(["2026-10-25T01:00:00Z", "2026-10-24T09:00:00Z", "2026-10-22T09:00:00Z"], now)).toBe(2);
+    expect(
+      practiceStreak(["2026-10-25T01:00:00Z", "2026-10-24T09:00:00Z", "2026-10-22T09:00:00Z"], now),
+    ).toBe(2);
   });
   it("is zero without recent activity", () => {
     expect(practiceStreak(["2026-10-20T01:00:00Z"], new Date("2026-10-25T12:00:00Z"))).toBe(0);

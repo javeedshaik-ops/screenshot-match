@@ -17,11 +17,15 @@ export const Route = createFileRoute("/auth")({
   component: Login,
 });
 
+ type FormErrors = {
+  email?: string;
+  password?: string;
+};
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,15 +41,19 @@ function Login() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const errs: Record<string, string> = {};
-    if (!/^\S+@\S+\.\S+$/.test(email)) errs.email = "Enter a valid email address";
-    if (!password) errs.password = "Enter your password";
+if (!/^\S+@\S+\.\S+$/.test(email)) errs["email"] = "Enter a valid email address";
+if (!password) errs["password"] = "Enter your password";
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast.error(error.message === "Invalid login credentials" ? "Incorrect email or password." : error.message);
+      toast.error(
+        error.message === "Invalid login credentials"
+          ? "Incorrect email or password."
+          : error.message,
+      );
       return;
     }
     toast.success("Welcome back!");
@@ -57,17 +65,35 @@ function Login() {
       <GoogleButton />
       <Divider />
       <form onSubmit={submit} className="space-y-4" noValidate>
-        <Field label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
-        <PasswordField label="Password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} />
+        <Field
+          label="Email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+        />
+        <PasswordField
+          label="Password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errors.password}
+        />
         <div className="flex justify-end text-sm">
-          <Link to="/forgot-password" className="text-cyan hover:underline">Forgot password?</Link>
+          <Link to="/forgot-password" className="text-cyan hover:underline">
+            Forgot password?
+          </Link>
         </div>
         <button className="btn-primary w-full" disabled={loading}>
           {loading && <Loader2 className="size-4 animate-spin" />} Sign In
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New here? <Link to="/signup" className="text-cyan hover:underline">Create an account</Link>
+        New here?{" "}
+        <Link to="/signup" className="text-cyan hover:underline">
+          Create an account
+        </Link>
       </p>
     </AuthShell>
   );

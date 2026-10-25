@@ -238,9 +238,18 @@
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(60% 50% at 15% 10%, color-mix(in oklab, var(--violet) 22%, transparent), transparent 70%),
-    radial-gradient(50% 45% at 90% 20%, color-mix(in oklab, var(--cyan) 14%, transparent), transparent 70%),
-    radial-gradient(70% 60% at 50% 110%, oklch(0.35 0.12 265 / 0.35), transparent 70%), var(--background);
+    radial-gradient(
+      60% 50% at 15% 10%,
+      color-mix(in oklab, var(--violet) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 45% at 90% 20%,
+      color-mix(in oklab, var(--cyan) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(70% 60% at 50% 110%, oklch(0.35 0.12 265 / 0.35), transparent 70%),
+    var(--background);
   &::after {
     content: "";
     position: absolute;

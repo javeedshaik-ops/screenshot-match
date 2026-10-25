@@ -4,7 +4,15 @@ import { Ambient, Logo } from "./brand";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
-export function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+export function AuthShell({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <Ambient />
@@ -22,7 +30,11 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
   );
 }
 
-export function Field({ label, error, ...props }: { label: string; error?: string } & InputHTMLAttributes<HTMLInputElement>) {
+export function Field({
+  label,
+  error,
+  ...props
+}: { label: string; error?: string | undefined } & InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium">{label}</span>
@@ -32,13 +44,22 @@ export function Field({ label, error, ...props }: { label: string; error?: strin
   );
 }
 
-export function PasswordField({ label, error, ...props }: { label: string; error?: string } & InputHTMLAttributes<HTMLInputElement>) {
+export function PasswordField({
+  label,
+  error,
+  ...props
+}: { label: string; error?: string | undefined } & InputHTMLAttributes<HTMLInputElement>) {
   const [show, setShow] = useState(false);
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium">{label}</span>
       <div className="relative">
-        <input className="field pr-11" type={show ? "text" : "password"} aria-invalid={!!error} {...props} />
+        <input
+          className="field pr-11"
+          type={show ? "text" : "password"}
+          aria-invalid={!!error}
+          {...props}
+        />
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
@@ -62,7 +83,9 @@ export function GoogleButton() {
       className="btn-ghost w-full"
       onClick={async () => {
         setLoading(true);
-        const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
+        const result = await lovable.auth.signInWithOAuth("google", {
+          redirect_uri: window.location.origin + "/auth",
+        });
         if (result.error) {
           toast.error(result.error.message ?? "Google sign-in failed");
           setLoading(false);
@@ -72,7 +95,10 @@ export function GoogleButton() {
       }}
     >
       <svg className="size-4" viewBox="0 0 24 24" aria-hidden>
-        <path fill="currentColor" d="M21.35 11.1H12v2.9h5.35c-.25 1.5-1.7 4.4-5.35 4.4-3.2 0-5.8-2.65-5.8-5.9s2.6-5.9 5.8-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.95 14.55 3 12 3 6.95 3 2.9 7.05 2.9 12.1S6.95 21.2 12 21.2c6.9 0 9.2-4.85 9.2-7.35 0-.5-.05-.85-.1-1.25z" />
+        <path
+          fill="currentColor"
+          d="M21.35 11.1H12v2.9h5.35c-.25 1.5-1.7 4.4-5.35 4.4-3.2 0-5.8-2.65-5.8-5.9s2.6-5.9 5.8-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.65 3.95 14.55 3 12 3 6.95 3 2.9 7.05 2.9 12.1S6.95 21.2 12 21.2c6.9 0 9.2-4.85 9.2-7.35 0-.5-.05-.85-.1-1.25z"
+        />
       </svg>
       Continue with Google
     </button>

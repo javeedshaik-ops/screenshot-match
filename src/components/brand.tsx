@@ -3,7 +3,10 @@ import { Sparkles } from "lucide-react";
 
 export function Logo({ to = "/" }: { to?: string }) {
   return (
-    <Link to={to} className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight">
+    <Link
+      to={to}
+      className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight"
+    >
       <span className="grid size-9 place-items-center rounded-xl bg-brand shadow-[var(--shadow-glow)]">
         <Sparkles className="size-4.5 text-primary-foreground" />
       </span>
@@ -23,7 +26,15 @@ export function Ambient() {
   );
 }
 
-export function ScoreRing({ value, size = 140, label }: { value: number; size?: number; label?: string }) {
+export function ScoreRing({
+  value,
+  size = 140,
+  label,
+}: {
+  value: number;
+  size?: number;
+  label?: string;
+}) {
   const stroke = 10;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
@@ -37,7 +48,14 @@ export function ScoreRing({ value, size = 140, label }: { value: number; size?: 
             <stop offset="100%" stopColor="var(--cyan)" />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--muted)" strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="var(--muted)"
+          strokeWidth={stroke}
+          fill="none"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}

@@ -21,30 +21,51 @@ function Forgot() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
-    if (!/^\S+@\S+\.\S+$/.test(email)) return toast.error("Enter a valid email address");
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
-    if (error) return toast.error(error.message);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
     setSent(true);
   }
   return (
     <AuthShell title="Forgot password" subtitle="We'll email you a secure reset link.">
       {sent ? (
-        <p className="text-sm text-muted-foreground">If an account exists for {email}, a reset link is on its way.</p>
+        <p className="text-sm text-muted-foreground">
+          If an account exists for {email}, a reset link is on its way.
+        </p>
       ) : (
         <form onSubmit={submit} className="space-y-4">
-          <Field label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Field
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <button className="btn-primary w-full" disabled={loading}>
             {loading && <Loader2 className="size-4 animate-spin" />} Send reset link
           </button>
         </form>
       )}
-      <p className="mt-6 text-center text-sm"><Link to="/auth" className="text-cyan hover:underline">Back to sign in</Link></p>
+      <p className="mt-6 text-center text-sm">
+        <Link to="/auth" className="text-cyan hover:underline">
+          Back to sign in
+        </Link>
+      </p>
     </AuthShell>
   );
 }

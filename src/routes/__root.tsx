@@ -23,7 +23,9 @@ function NotFoundComponent() {
       <div className="glass max-w-md rounded-3xl p-10 text-center">
         <h1 className="text-gradient text-7xl font-bold">404</h1>
         <h2 className="mt-4 text-xl font-semibold">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">The page you're looking for doesn't exist.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The page you're looking for doesn't exist.
+        </p>
         <Link to="/" className="btn-primary mt-6">
           Go home
         </Link>
@@ -43,7 +45,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
       <Ambient />
       <div className="glass max-w-md rounded-3xl p-10 text-center">
         <h1 className="text-xl font-semibold">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{(error as Error)?.message || "Something went wrong."}</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {(error as Error)?.message || "Something went wrong."}
+        </p>
         <div className="mt-6 flex justify-center gap-2">
           <button
             onClick={() => {
@@ -69,7 +73,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "InterviewAI — Your Personal AI Interview Coach" },
-      { name: "description", content: "Practice AI-generated mock interviews with instant scoring and personalized feedback." },
+      {
+        name: "description",
+        content:
+          "Practice AI-generated mock interviews with instant scoring and personalized feedback.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

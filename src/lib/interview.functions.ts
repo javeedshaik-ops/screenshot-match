@@ -2,7 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { scoreInterview, type Letter } from "./scoring";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Database, Tables } from "@/integrations/supabase/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const LETTERS = ["A", "B", "C", "D"] as const;
 
@@ -64,7 +65,9 @@ Keep explanations concise (1-3 sentences). Topic should be a short skill tag lik
   return out.questions
     .filter((q) => {
       const key = q.question.trim().toLowerCase();
-      const opts = [q.option_a, q.option_b, q.option_c, q.option_d].map((o) => o.trim().toLowerCase());
+      const opts = [q.option_a, q.option_b, q.option_c, q.option_d].map((o) =>
+        o.trim().toLowerCase(),
+      );
       if (!key || seen.has(key) || opts.some((o) => !o) || new Set(opts).size !== 4) return false;
       seen.add(key);
       return true;
@@ -84,7 +87,8 @@ export const createInterview = createServerFn({ method: "POST" })
       .select("id", { count: "exact", head: true })
       .eq("user_id", context.userId)
       .gte("created_at", since);
-    if ((count ?? 0) >= 15) throw new Error("You've started many interviews this hour. Please wait a bit and try again.");
+    if ((count ?? 0) >= 15)
+      throw new Error("You've started many interviews this hour. Please wait a bit and try again.");
 
     let questions = await generateQuestions(data, data.question_count);
     if (questions.length < data.question_count) {
@@ -95,7 +99,8 @@ export const createInterview = createServerFn({ method: "POST" })
         data.question_count,
       );
     }
-    if (questions.length < data.question_count) throw new Error("Couldn't generate enough valid questions. Please retry.");
+    if (questions.length < data.question_count)
+      throw new Error("Couldn't generate enough valid questions. Please retry.");
 
     const { data: session, error } = await db
       .from("interview_sessions")
@@ -123,7 +128,12 @@ export const createInterview = createServerFn({ method: "POST" })
         options: { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d },
         correct_option: q.correct_option,
         explanation: q.explanation,
-        distractor_explanations: { A: q.why_a_wrong, B: q.why_b_wrong, C: q.why_c_wrong, D: q.why_d_wrong },
+        distractor_explanations: {
+          A: q.why_a_wrong,
+          B: q.why_b_wrong,
+          C: q.why_c_wrong,
+          D: q.why_d_wrong,
+        },
         topic: q.topic,
         difficulty: q.difficulty,
         code_snippet: q.code_snippet,
@@ -137,8 +147,12 @@ export const createInterview = createServerFn({ method: "POST" })
     return { id: session.id };
   });
 
-async function ownedSession(context: { supabase: any }, id: string) {
-  const { data, error } = await context.supabase.from("interview_sessions").select("*").eq("id", id).maybeSingle();
+async function ownedSession(context: { supabase: SupabaseClient<Database> }, id: string) {
+  const { data, error } = await context.supabase
+    .from("interview_sessions")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
   if (error || !data) throw new Error("Interview not found.");
   return data as Tables<"interview_sessions">;
 }
@@ -164,26 +178,32 @@ export const getInterview = createServerFn({ method: "POST" })
     return {
       session,
       questions: (qs ?? []).map((q) => ({ ...q, options: q.options as Record<Letter, string> })),
-      answers: (ans ?? []) as { question_id: string; selected_option: Letter | null; flagged: boolean }[],
+      answers: (ans ?? []) as {
+        question_id: string;
+        selected_option: Letter | null;
+        flagged: boolean;
+      }[],
       serverNow: new Date().toISOString(),
     };
   });
 
 export const saveAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; question_id: string; selected_option: Letter | null; flagged: boolean }) =>
-    z
-      .object({
-        id: z.string().uuid(),
-        question_id: z.string().uuid(),
-        selected_option: z.enum(LETTERS).nullable(),
-        flagged: z.boolean(),
-      })
-      .parse(i),
+  .inputValidator(
+    (i: { id: string; question_id: string; selected_option: Letter | null; flagged: boolean }) =>
+      z
+        .object({
+          id: z.string().uuid(),
+          question_id: z.string().uuid(),
+          selected_option: z.enum(LETTERS).nullable(),
+          flagged: z.boolean(),
+        })
+        .parse(i),
   )
   .handler(async ({ data, context }) => {
     const session = await ownedSession(context, data.id);
-    if (session.status !== "in_progress") throw new Error("This interview has already been submitted.");
+    if (session.status !== "in_progress")
+      throw new Error("This interview has already been submitted.");
     const db = await admin();
     const { data: q } = await db
       .from("interview_questions")
@@ -224,11 +244,18 @@ async function buildFeedback(sessionId: string, userId: string) {
     .select("id, question, topic, correct_option, options")
     .eq("session_id", sessionId)
     .order("position");
-  const { data: ans } = await db.from("user_answers").select("question_id, selected_option").eq("session_id", sessionId);
+  const { data: ans } = await db
+    .from("user_answers")
+    .select("question_id, selected_option")
+    .eq("session_id", sessionId);
   const amap = new Map((ans ?? []).map((a) => [a.question_id, a.selected_option]));
   const lines = (qs ?? []).map((q, i) => {
     const sel = amap.get(q.id);
-    const status = !sel ? "UNANSWERED" : sel === q.correct_option ? "CORRECT" : `WRONG (chose ${sel})`;
+    const status = !sel
+      ? "UNANSWERED"
+      : sel === q.correct_option
+        ? "CORRECT"
+        : `WRONG (chose ${sel})`;
     return `${i + 1}. [${q.topic}] ${status} — ${q.question.slice(0, 160)}`;
   });
   const { generateStructured } = await import("./ai.server");
@@ -263,8 +290,14 @@ export const submitInterview = createServerFn({ method: "POST" })
     const session = await ownedSession(context, data.id);
     if (session.status === "completed") return { id: data.id, alreadySubmitted: true };
     const db = await admin();
-    const { data: qs } = await db.from("interview_questions").select("id, correct_option").eq("session_id", data.id);
-    const { data: ans } = await db.from("user_answers").select("id, question_id, selected_option").eq("session_id", data.id);
+    const { data: qs } = await db
+      .from("interview_questions")
+      .select("id, correct_option")
+      .eq("session_id", data.id);
+    const { data: ans } = await db
+      .from("user_answers")
+      .select("id, question_id, selected_option")
+      .eq("session_id", data.id);
     const answers: Record<string, Letter | null> = {};
     for (const a of ans ?? []) answers[a.question_id] = a.selected_option as Letter | null;
     const r = scoreInterview((qs ?? []) as { id: string; correct_option: Letter }[], answers);
@@ -289,7 +322,10 @@ export const submitInterview = createServerFn({ method: "POST" })
       .select("id");
     if (!upd?.length) return { id: data.id, alreadySubmitted: true };
     for (const a of ans ?? []) {
-      await db.from("user_answers").update({ is_correct: r.perQuestion[a.question_id] ?? null }).eq("id", a.id);
+      await db
+        .from("user_answers")
+        .update({ is_correct: r.perQuestion[a.question_id] ?? null })
+        .eq("id", a.id);
     }
     try {
       await buildFeedback(data.id, context.userId);
@@ -317,10 +353,23 @@ export const getResults = createServerFn({ method: "POST" })
     const session = await ownedSession(context, data.id);
     if (session.status !== "completed") return { session, questions: [], feedback: null };
     const db = await admin();
-    const { data: qs } = await db.from("interview_questions").select("*").eq("session_id", data.id).order("position");
-    const { data: ans } = await db.from("user_answers").select("question_id, selected_option").eq("session_id", data.id);
-    const { data: fb } = await db.from("ai_feedback").select("*").eq("session_id", data.id).maybeSingle();
-    const amap = new Map((ans ?? []).map((a) => [a.question_id, a.selected_option as Letter | null]));
+    const { data: qs } = await db
+      .from("interview_questions")
+      .select("*")
+      .eq("session_id", data.id)
+      .order("position");
+    const { data: ans } = await db
+      .from("user_answers")
+      .select("question_id, selected_option")
+      .eq("session_id", data.id);
+    const { data: fb } = await db
+      .from("ai_feedback")
+      .select("*")
+      .eq("session_id", data.id)
+      .maybeSingle();
+    const amap = new Map(
+      (ans ?? []).map((a) => [a.question_id, a.selected_option as Letter | null]),
+    );
     return {
       session,
       questions: (qs ?? []).map((q) => ({
@@ -375,7 +424,7 @@ export const getAnalytics = createServerFn({ method: "POST" })
       const amap = new Map((ans ?? []).map((a) => [a.question_id, a.is_correct]));
       const order = new Map(ids.map((id, i) => [id, i]));
       const sorted = (qs ?? []).sort(
-        (a, b) => (order.get(a.session_id)! - order.get(b.session_id)!) || a.position - b.position,
+        (a, b) => order.get(a.session_id)! - order.get(b.session_id)! || a.position - b.position,
       );
       for (const q of sorted) {
         const ok = amap.get(q.id) === true;
@@ -394,7 +443,13 @@ export const getAnalytics = createServerFn({ method: "POST" })
       const late = t.recent.slice(half);
       const rate = (a: boolean[]) => (a.length ? a.filter(Boolean).length / a.length : 0);
       const trend =
-        t.recent.length >= 4 ? (rate(late) - rate(early) > 0.15 ? "improving" : rate(early) - rate(late) > 0.15 ? "declining" : "steady") : "not enough data";
+        t.recent.length >= 4
+          ? rate(late) - rate(early) > 0.15
+            ? "improving"
+            : rate(early) - rate(late) > 0.15
+              ? "declining"
+              : "steady"
+          : "not enough data";
       return {
         topic,
         correct: t.correct,

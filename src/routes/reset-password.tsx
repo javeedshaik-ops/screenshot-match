@@ -22,14 +22,28 @@ function Reset() {
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
-    if (pw.length < 8) return toast.error("Use at least 8 characters");
-    if (pw !== confirm) return toast.error("Passwords don't match");
+
+    if (pw.length < 8) {
+      toast.error("Use at least 8 characters");
+      return;
+    }
+
+    if (pw !== confirm) {
+      toast.error("Passwords don't match");
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
     setLoading(false);
-    if (error) return toast.error(error.message);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
     toast.success("Password updated");
     navigate({ to: "/dashboard" });
   }
@@ -37,7 +51,11 @@ function Reset() {
     <AuthShell title="Set a new password" subtitle="Enter and confirm your new password.">
       <form onSubmit={submit} className="space-y-4">
         <PasswordField label="New password" value={pw} onChange={(e) => setPw(e.target.value)} />
-        <PasswordField label="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        <PasswordField
+          label="Confirm password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+        />
         <button className="btn-primary w-full" disabled={loading}>
           {loading && <Loader2 className="size-4 animate-spin" />} Update password
         </button>

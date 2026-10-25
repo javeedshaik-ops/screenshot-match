@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
 import { Loader2, AlertTriangle } from "lucide-react";
 
-export function PageHeader({ title, subtitle, action }: { title: ReactNode; subtitle?: string; action?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: ReactNode;
+  subtitle?: string | undefined;
+  action?: ReactNode | undefined;
+}) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4 fade-up">
       <div>
@@ -13,7 +21,17 @@ export function PageHeader({ title, subtitle, action }: { title: ReactNode; subt
   );
 }
 
-export function StatCard({ label, value, hint, icon }: { label: string; value: ReactNode; hint?: string; icon?: ReactNode }) {
+export function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: ReactNode;
+  hint?: string;
+  icon?: ReactNode;
+}) {
   return (
     <div className="glass rounded-2xl p-5">
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -48,7 +66,15 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
-export function Panel({ title, children, className = "" }: { title?: string; children: ReactNode; className?: string }) {
+export function Panel({
+  title,
+  children,
+  className = "",
+}: {
+  title?: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <section className={`glass rounded-2xl p-6 ${className}`}>
       {title && <h2 className="mb-4 text-base font-semibold">{title}</h2>}

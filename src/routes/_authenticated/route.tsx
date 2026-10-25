@@ -1,4 +1,11 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import {
   LayoutDashboard,
@@ -67,7 +74,9 @@ function Layout() {
             onClick={() => setMobileOpen(false)}
             title={n.label}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
-              active ? "bg-sidebar-accent text-foreground shadow-[inset_2px_0_0_var(--violet)]" : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+              active
+                ? "bg-sidebar-accent text-foreground shadow-[inset_2px_0_0_var(--violet)]"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
             }`}
           >
             <n.icon className={`size-4.5 shrink-0 ${active ? "text-violet" : ""}`} />
@@ -99,7 +108,10 @@ function Layout() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setMobileOpen(false)}>
           <div className="absolute inset-0 bg-background/70" />
-          <aside className="glass-strong absolute left-0 top-0 h-full w-[260px]" onClick={(e) => e.stopPropagation()}>
+          <aside
+            className="glass-strong absolute left-0 top-0 h-full w-[260px]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {sidebar}
           </aside>
         </div>
@@ -108,7 +120,11 @@ function Layout() {
         {!focus && (
           <div className="flex items-center justify-between border-b border-glass-border px-4 py-3 lg:hidden">
             <Logo to="/dashboard" />
-            <button onClick={() => setMobileOpen(true)} className="btn-ghost !p-2" aria-label="Open menu">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="btn-ghost !p-2"
+              aria-label="Open menu"
+            >
               <Menu className="size-5" />
             </button>
           </div>

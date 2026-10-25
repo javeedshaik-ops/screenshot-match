@@ -6,7 +6,12 @@ import { SessionRows } from "@/components/session-rows";
 import { ErrorState, Loading, PageHeader, Panel } from "@/components/ui-bits";
 
 export const Route = createFileRoute("/_authenticated/history")({
-  head: () => ({ meta: [{ title: "Practice History — InterviewAI" }, { name: "description", content: "All your past interview sessions." }] }),
+  head: () => ({
+    meta: [
+      { title: "Practice History — InterviewAI" },
+      { name: "description", content: "All your past interview sessions." },
+    ],
+  }),
   component: History,
 });
 
@@ -18,10 +23,28 @@ function History() {
   const list = (q.data ?? []).filter((s) => filter === "all" || s.status === filter);
   return (
     <>
-      <PageHeader title="Practice history" subtitle="Every interview you've taken, newest first." action={<Link to="/interview/new" className="btn-primary">New Interview</Link>} />
+      <PageHeader
+        title="Practice history"
+        subtitle="Every interview you've taken, newest first."
+        action={
+          <Link to="/interview/new" className="btn-primary">
+            New Interview
+          </Link>
+        }
+      />
       <div className="mb-4 flex gap-2">
-        {[["all", "All"], ["completed", "Completed"], ["in_progress", "In progress"]].map(([v, l]) => (
-          <button key={v} onClick={() => setFilter(v!)} className={`rounded-full px-4 py-1.5 text-sm ${filter === v ? "bg-brand text-primary-foreground" : "glass text-muted-foreground"}`}>{l}</button>
+        {[
+          ["all", "All"],
+          ["completed", "Completed"],
+          ["in_progress", "In progress"],
+        ].map(([v, l]) => (
+          <button
+            key={v}
+            onClick={() => setFilter(v!)}
+            className={`rounded-full px-4 py-1.5 text-sm ${filter === v ? "bg-brand text-primary-foreground" : "glass text-muted-foreground"}`}
+          >
+            {l}
+          </button>
         ))}
       </div>
       <Panel>
