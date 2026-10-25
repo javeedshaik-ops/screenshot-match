@@ -20,7 +20,7 @@ export async function generateStructured<T>(opts: {
   instructions: string;
   prompt: string;
 }): Promise<T> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env['LOVABLE_API_KEY'];
   if (!apiKey) throw new AiError("AI is not configured (missing LOVABLE_API_KEY).", 500);
 
   let status = 0;
@@ -37,7 +37,7 @@ export async function generateStructured<T>(opts: {
 
   try {
     const result = streamText({
-      model: provider.responses(MODEL),
+      model: provider.responses(MODEL) as any,
       instructions: opts.instructions,
       prompt: opts.prompt,
       output: Output.object({ schema: opts.schema }),

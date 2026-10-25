@@ -53,7 +53,7 @@ function Dashboard() {
   const topics = analytics.data?.topics ?? [];
   const weakest = topics.filter((t) => t.accuracy < 70).slice(0, 4);
   const strongest = [...topics].filter((t) => t.accuracy >= 70).sort((a, b) => b.accuracy - a.accuracy).slice(0, 4);
-  const last = completed[0];
+  const last = completed[0]!;
 
   return (
     <>

@@ -10,7 +10,7 @@ export const profileQuery = queryOptions({
     if (error) throw error;
     return data ?? {
       id: u.user.id,
-      full_name: (u.user.user_metadata?.full_name as string) ?? "",
+      full_name: (u.user.user_metadata?.['full_name'] as string) ?? "",
       email: u.user.email ?? null,
       target_role: null,
       experience_level: "beginner",
