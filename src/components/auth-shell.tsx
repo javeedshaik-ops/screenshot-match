@@ -1,7 +1,7 @@
 import { useState, type ReactNode, type InputHTMLAttributes } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Ambient, Logo } from "./brand";
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export function AuthShell({
@@ -81,18 +81,25 @@ export function GoogleButton() {
       type="button"
       disabled={loading}
       className="btn-ghost w-full"
-      onClick={async () => {
-        setLoading(true);
-        const result = await lovable.auth.signInWithOAuth("google", {
-          redirect_uri: window.location.origin + "/auth",
-        });
-        if (result.error) {
-          toast.error(result.error.message ?? "Google sign-in failed");
-          setLoading(false);
-        }
-        if (result.redirected) return;
-        setLoading(false);
-      }}
+onClick={async () => {
+  setLoading(true);
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth`,
+      },
+    });
+
+    if (error) {
+      toast.error(error.message ?? "Google sign-in failed");
+      setLoading(false);
+    }
+  } catch {
+    toast.error("Google sign-in failed. Please try again.");
+    setLoading(false);
+  }
+}}
     >
       <svg className="size-4" viewBox="0 0 24 24" aria-hidden>
         <path
